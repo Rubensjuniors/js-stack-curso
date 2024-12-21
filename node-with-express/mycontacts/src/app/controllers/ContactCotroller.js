@@ -2,12 +2,9 @@ const ContactRepository = require('../repoositories/ContactRepository');
 
 class ContactCotroller {
   async index(request, response) {
-    try {
-      const contacts = await ContactRepository.findAll();
-      response.json(contacts);
-    } catch (err) {
-      throw new Error(`Error: ${err}`);
-    }
+    const { orderBy } = request.query;
+    const contacts = await ContactRepository.findAll(orderBy);
+    response.json(contacts);
   }
 
   async show(request, response) {
@@ -30,9 +27,9 @@ class ContactCotroller {
       return response.status(409).json({ message: 'Email Already Exist' });
     }
 
-    await ContactRepository.create(data);
+    const contact = await ContactRepository.create({ ...data });
 
-    return response.sendStatus(201);
+    return response.json(contact);
   }
 
   async update(request, response) {

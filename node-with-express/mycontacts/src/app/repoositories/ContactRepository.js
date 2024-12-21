@@ -1,74 +1,73 @@
-const { randomUUID } = require('node:crypto');
+const db = require('../../db');
 
 class ContactRepository {
-  contacts = [
-    {
-      id: randomUUID(),
-      name: 'Larissa',
-      email: 'larrissa@exemple.com',
-      phone: '12345678',
-      category: randomUUID(),
-    },
-  ];
+  async findAll(orderBy = 'ASC') {
+    const direction = orderBy.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    const rows = await db.query(
+      `SELECT contacts.*, categories.name AS category_name FROM contacts
+      LEFT JOIN categories ON categories.id = contacts.category_id
+      ORDER BY contacts.name ${direction}`,
+    );
 
-  findAll() {
-    return new Promise((res) => {
-      res(this.contacts);
-    });
+    return rows;
   }
 
-  findByEmail(email) {
-    return new Promise((res) => {
-      const hasEmail = this.contacts.some((item) => item.email === email);
-      res(hasEmail);
-    });
+  async findByEmail(email) {
+    const [row] = await db.query('SELECT * FROM contacts WHERE email = $1', [
+      email,
+    ]);
+
+    return row;
   }
 
-  create(data) {
-    return new Promise((res) => {
-      const dataWithId = {
-        id: randomUUID(),
-        ...data,
-        category: randomUUID(),
-      };
-      this.contacts.push(dataWithId);
-      res();
-    });
+  async create({
+    name, email, phone, category_id: categoryID,
+  }) {
+    const [row] = await db.query(
+      `INSERT INTO contacts(name, email, phone, category_id)
+      VALUES ($1, $2, $3, $4) RETURNING *`,
+      [name, email, phone, categoryID],
+    );
+
+    return row;
   }
 
-  findById(id) {
-    const contact = this.contacts.find((item) => item.id === id);
-
-    return new Promise((res) => {
-      res(contact);
-    });
+  async findById(id) {
+    const row = await db.query(
+      `
+      SELECT contacts.*, categories.name AS category_name FROM contacts
+      JOIN categories ON categories.id = contacts.category_id
+      WHERE contacts.id = $1`,
+      [id],
+    );
+    return row;
   }
 
-  updateContact(id, data) {
-    return new Promise((res) => {
-      const updateContact = this.contacts.map((item) => {
-        if (item.id === id) {
-          return { ...item, ...data };
-        }
+  async updateContact(id, data) {
+    const keys = Object.keys(data).map(
+      (key, index) => `${key} = $${index + 2}`,
+    );
+    const values = Object.keys(data).map((value) => data[value]);
 
-        return item;
-      });
+    const [row] = await db.query(
+      `
+        UPDATE contacts
+        SET ${keys.join(', ')} WHERE id = $1
+      `,
+      [id, ...values],
+    );
 
-      this.contacts = updateContact;
-
-      res(updateContact);
-    });
+    return row;
   }
 
-  delete(id) {
-    return new Promise((res) => {
-      const contactIndex = this.contacts.findIndex((item) => item.id === id);
-
-      if (contactIndex !== -1) {
-        this.contacts.splice(contactIndex, 1);
-      }
-      res();
-    });
+  async delete(id) {
+    const deleteOp = await db.query(
+      `
+        DELETE FROM contacts WHERE id = $1
+      `,
+      [id],
+    );
+    return deleteOp;
   }
 }
 
