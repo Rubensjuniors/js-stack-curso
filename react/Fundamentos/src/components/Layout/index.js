@@ -1,4 +1,4 @@
-import React, { use } from "react";
+import React, { use, useEffect } from "react";
 
 import { Header } from "../Header";
 import { PostList } from "../PostList";
