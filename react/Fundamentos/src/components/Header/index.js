@@ -1,14 +1,34 @@
 import React from "react";
 import { Container } from "./styled";
-import { useThemeContext } from "../../context/themeContext";
+// import PropTypes from "prop-types";
+import { ThemeContext } from "../../context/themeContext";
 
-export function Header() {
-  const { theme, toggleTheme } = useThemeContext()
 
-  return (
-    <Container>
-      <h1>JS Blog</h1>
-      <button type="button" onClick={() => toggleTheme()}>{theme === 'dark' ? '🌞' : '🌑'}</button>
-    </Container>
-  );
+export class Header extends React.Component {
+  // static propTypes = {
+  //   theme: PropTypes.string.isRequired,
+  //   toggleTheme: PropTypes.func.isRequired,
+  // };
+
+  render() {
+    return (
+      <Container>
+        <ThemeContext.Consumer>
+          {({ theme, toggleTheme }) => (
+            <>
+              <h1>JS Blog</h1>
+              <button type="button" onClick={() => toggleTheme()}>
+                {theme === "dark" ? "🌞" : "🌑"}
+              </button>
+            </>
+          )}
+        </ThemeContext.Consumer>
+      </Container>
+    );
+  }
 }
+
+// Header.propTypes = {
+//   theme: PropTypes.string.isRequired,
+//   toggleTheme: PropTypes.func.isRequired
+// }

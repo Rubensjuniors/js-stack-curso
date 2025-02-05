@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 import * as themes from '../styles/themes/index'
 
-const ThemeContext = createContext();
+export const ThemeContext = createContext();
 
 export const useThemeContext = () => useContext(ThemeContext)
 
@@ -36,3 +36,4 @@ export function ThemeContextProvider({ children }) {
 ThemeContextProvider.propTypes = {
   children: PropTypes.node.isRequired,
 };
+
