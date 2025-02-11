@@ -3,6 +3,7 @@ import React from "react";
 import { Header } from "../Header";
 import { PostList } from "../PostList";
 import { Footer } from "../Footer";
+import { Routes } from "../../Routes";
 
 export class Layout extends React.Component {
   componentDidMount() {
@@ -22,9 +23,8 @@ export class Layout extends React.Component {
   render() {
     return (
       <>
-        {/* {undefined.map(item => item)} */}
         <Header />
-        <PostList />
+        <Routes />
         <Footer />
       </>
     );
